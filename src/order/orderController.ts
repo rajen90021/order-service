@@ -352,6 +352,13 @@ export class OrderController {
         (product) => product.productId === curr._id,
       );
 
+      if (!cachedProductPrice) {
+        throw createHttpError(
+          400,
+          `Product price info not found for product ${curr._id}`,
+        );
+      }
+
       return (
         acc +
         curr.qty * this.getItemTotal(curr, cachedProductPrice, toppingPricings)
