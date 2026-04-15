@@ -56,10 +56,13 @@ const seed = async () => {
         const catalogProducts = await CatalogProduct.find({});
         console.log(`Found ${catalogProducts.length} products in catalog.`);
 
-        const productCaches = catalogProducts.map((p: any) => ({
-            productId: p._id.toString(),
-            priceConfiguration: p.priceConfiguration
-        }));
+        const productCaches = catalogProducts.map((p) => {
+            const item = p as unknown as { _id: mongoose.Types.ObjectId; priceConfiguration: unknown };
+            return {
+                productId: item._id.toString(),
+                priceConfiguration: item.priceConfiguration,
+            };
+        });
         
         if (productCaches.length > 0) {
             await productCacheModel.insertMany(productCaches);
@@ -67,11 +70,14 @@ const seed = async () => {
         }
 
         const catalogToppings = await CatalogTopping.find({});
-        const toppingCaches = catalogToppings.map((t: any) => ({
-            toppingId: t._id.toString(),
-            price: t.price,
-            tenantId: t.tenantId
-        }));
+        const toppingCaches = catalogToppings.map((t) => {
+            const item = t as unknown as { _id: mongoose.Types.ObjectId; price: number; tenantId: string };
+            return {
+                toppingId: item._id.toString(),
+                price: item.price,
+                tenantId: item.tenantId,
+            };
+        });
 
         if (toppingCaches.length > 0) {
             await toppingCacheModel.insertMany(toppingCaches);
