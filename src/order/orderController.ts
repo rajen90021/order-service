@@ -40,8 +40,7 @@ export class OrderController {
       comment,
       address,
     } = req.body;
-    // todo: validate request data.
-
+    console.log('Creating order for tenant:', tenantId, 'customer:', customerId);
     const totalPrice = await this.calculateTotal(cart);
 
     let discountPercentage = 0;
@@ -156,7 +155,7 @@ export class OrderController {
 
   getAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { role, tenant: userTenantId } = req.auth;
-
+    console.log('Getting all orders. Role:', role, 'Tenant:', userTenantId);
     const tenantId = req.query.tenantId;
 
     if (role === ROLES.CUSTOMER) {
@@ -193,6 +192,7 @@ export class OrderController {
   };
   getMine = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const userId = req.auth.sub;
+    console.log('Getting mine orders for userId:', userId);
 
     if (!userId) {
       return next(createHttpError(400, "No userId found."));
@@ -200,6 +200,7 @@ export class OrderController {
 
     // todo: Add error handling.
     const customer = await customerModel.findOne({ userId });
+    console.log('Found customer record:', customer?._id);
 
     if (!customer) {
       return next(createHttpError(400, "No customer found."));
@@ -217,6 +218,7 @@ export class OrderController {
   getSingle = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const orderId = req.params.orderId;
     const { sub: userId, role, tenant: tenantId } = req.auth;
+    console.log('Getting single order:', orderId, 'Requested by:', userId, 'Role:', role);
 
     const fields = req.query.fields
       ? req.query.fields.toString().split(",")
@@ -227,7 +229,7 @@ export class OrderController {
         acc[field] = 1;
         return acc;
       },
-      { customerId: 1 },
+      { customerId: 1, tenantId: 1 },
     );
 
     // {
